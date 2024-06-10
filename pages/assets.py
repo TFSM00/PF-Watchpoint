@@ -9,7 +9,7 @@ expenses = ExpensesManager.loadExpenses()
 
 configs = {"Deposits": DEPOSITS_COLUMN_CONFIG,
            "Crypto": CRYPTO_COLUMN_CONFIG}
-AssetManager.updateBalance()
+#AssetManager.updateBalance()
 
 st.header('Assets')
 
