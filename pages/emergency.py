@@ -101,8 +101,25 @@ def getFutureCashFlows(t_plus: int, start: float, apr: float):
     return cfs
 
 cf_data = getFutureCashFlows(month_outlook, savings_account.nominal, yield_value)
-cf_data = cf_data.set_index('date')
+#cf_data = cf_data.set_index('date')
 st.dataframe(cf_data)
+
+difference = cf_data['nominal'] - [average_expense * -1 for _ in range(len(cf_data))]
+expense_coverage_fig = go.Figure(
+    data=[
+        go.Scatter(x=cf_data['date'], y=cf_data['nominal'],
+                mode='lines', line=go.scatter.Line(color='#18f3a8'),
+                name='Expected Savings',
+                hovertext=[f'Difference: {diff}' for diff in difference]),
+        go.Scatter(x=cf_data['date'], y=[average_expense * -1 for _ in range(len(cf_data))],
+                mode='lines', line=go.scatter.Line(color='crimson'),
+                name='Average Expenses',
+                fill='tozeroy')
+    ],
+    layout=go.Layout(height=600, width=800, yaxis={'rangemode':'tozero'},
+                     title='Expected Savings vs Expenses',
+                     hovermode='x unified')
+)
 
 # net_cf = px.line(cf_data['nominal'], line_shape='spline',
 #                  labels={
@@ -115,7 +132,7 @@ st.dataframe(cf_data)
 # #net_cf.add_trace()
 # net_cf.add_hline(y=average_expense * -1, line_width=2, line_color='red')
 # net_cf.update_traces(line_color='#18f3a8')
-# st.plotly_chart(net_cf, use_container_width=True)
+st.plotly_chart(expense_coverage_fig, use_container_width=True)
     
 # TODO: Handle no savings account
 
