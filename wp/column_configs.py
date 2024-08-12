@@ -94,4 +94,3 @@ CRYPTO_COLUMN_CONFIG = {
                        label='Value Date',
                        format='DD-MM-YYYY'
                    )}
-

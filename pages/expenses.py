@@ -1,6 +1,6 @@
 import streamlit as st
 from wp.column_configs import EXPENSES_COLUMN_CONFIG
-from wp.managers import ExpensesManager, WatchPointManager
+from wp.managers.watchpoint_manager import ExpensesManager, WatchPointManager
 from wp.pages import menu
 
 menu()
@@ -25,5 +25,6 @@ edited_data = st.data_editor(expenses,
                 width=4000,
                 column_config=EXPENSES_COLUMN_CONFIG,
                 disabled=(data_view != 'Write'),
-                key='expense_data')
+                key='expense_data',
+                num_rows='dynamic' if data_view == 'Write' else 'fixed')
 

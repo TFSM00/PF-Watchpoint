@@ -1,5 +1,5 @@
 import streamlit as st
-from wp.managers import ExpensesManager, WatchPointManager, DateManager, AssetManager
+from wp.managers.watchpoint_manager import ExpensesManager, WatchPointManager, DateManager, AssetManager
 import datetime as dt
 from dateutil.relativedelta import relativedelta
 from wp.pages import menu
@@ -113,7 +113,7 @@ expense_coverage_fig = go.Figure(
                 hovertext=[f'Difference: {diff}' for diff in difference]),
         go.Scatter(x=cf_data['date'], y=[average_expense * -1 for _ in range(len(cf_data))],
                 mode='lines', line=go.scatter.Line(color='crimson'),
-                name='Average Expenses',
+                name='Savings Required',
                 fill='tozeroy')
     ],
     layout=go.Layout(height=600, width=800, yaxis={'rangemode':'tozero'},
@@ -132,7 +132,33 @@ expense_coverage_fig = go.Figure(
 # #net_cf.add_trace()
 # net_cf.add_hline(y=average_expense * -1, line_width=2, line_color='red')
 # net_cf.update_traces(line_color='#18f3a8')
+
+
+
+
+expense_levels = pd.DataFrame(columns=['start_date', 'end_date', 'expense', 'expense_override', "expense_level"])
+display_overrides = st.dataframe(expense_levels)
+form = st.form('override', border=True)
+start_date = form.date_input('Enter start date', value='today', key="override_form_start")
+end_date = form.date_input('Enter start date', value='today', key="override_form_end")
+expense_override = form.checkbox('Set actual expense level?')
+expense = form.number_input('Enter expense', min_value=0, step=1)
+submitted = form.form_submit_button("Submit")
+
+if submitted:
+    if expense_override:
+        expense_levels.loc[len(expense_levels.index)] = [start_date, end_date, None, expense_override, expense]
+        
+    else:
+        expense_levels.loc[len(expense_levels.index)] = [start_date, end_date, expense, expense_override, None]
+    expense_levels.index = expense_levels.index + 1
+    expense_levels = expense_levels.sort_index()
+    display_overrides = st.dataframe(expense_levels)
+
+
 st.plotly_chart(expense_coverage_fig, use_container_width=True)
+
+
     
 # TODO: Handle no savings account
 

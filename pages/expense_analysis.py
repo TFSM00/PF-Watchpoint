@@ -1,5 +1,5 @@
 import streamlit as st
-from wp.managers import ExpensesManager as em, WatchPointManager as wm
+from wp.managers.watchpoint_manager import ExpensesManager as em, WatchPointManager as wm
 import plotly.express as px
 import datetime as dt
 from wp.pages import menu
