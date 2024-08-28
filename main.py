@@ -2,11 +2,13 @@ import streamlit as st
 from wp.managers.watchpoint_manager import WatchPointManager
 from wp.managers.networth_analyzer import NetWorthAnalyzer
 import datetime as dt
+from wp.utils import Utils
 
 import plotly.graph_objects as go
 from wp.pages import menu
 
 menu()
+Utils.init_db()
 
 #TODO: Load data only once and refresh on-demand
 balance, month_expenses, nw = st.columns(3)

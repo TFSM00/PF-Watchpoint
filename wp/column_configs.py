@@ -1,5 +1,6 @@
 import streamlit as st
 
+
 EXPENSES_COLUMN_CONFIG = {
                    'date': st.column_config.DateColumn(
                        label='Date',
@@ -15,14 +16,18 @@ EXPENSES_COLUMN_CONFIG = {
                    'category': st.column_config.Column(
                        label='Category'
                    ),
-                   'nominal': st.column_config.NumberColumn(
+                   'amount': st.column_config.NumberColumn(
                        label='Nominal',
-                       format='€ %.2f'
+                       format='%.2f'
                    ),
-                   'balance': st.column_config.NumberColumn(
+                   'account_balance': st.column_config.NumberColumn(
                        label='Balance',
-                       format='€ %.2f'
+                       format='%.2f'
+                   ),
+                   'account': st.column_config.Column(
+                       label='Account'
                    )}
+                
 
 DEPOSITS_COLUMN_CONFIG = {
                    'name': st.column_config.Column(
@@ -94,3 +99,7 @@ CRYPTO_COLUMN_CONFIG = {
                        label='Value Date',
                        format='DD-MM-YYYY'
                    )}
+
+DB_TABLE_COL_CFG = {
+    'expenses': EXPENSES_COLUMN_CONFIG
+}
