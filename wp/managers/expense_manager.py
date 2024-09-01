@@ -5,7 +5,7 @@ class ExpensesManager:
     @staticmethod
     def loadExpenses() -> pd.DataFrame | None:
         if 'expenses.csv' not in os.listdir('data/'):
-            return None
+            return pd.DataFrame()
         
         df = pd.read_csv('data/expenses.csv')
         df['date'] = pd.to_datetime(df['date'])

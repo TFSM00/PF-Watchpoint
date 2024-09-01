@@ -2,9 +2,10 @@ import streamlit as st
 import pandas as pd
 from wp.managers.expense_manager import ExpensesManager
 from wp.column_configs import DB_TABLE_COL_CFG
-from wp.pages import menu
 from wp.utils import Utils
-menu()
+from wp.startup import startup
+
+startup()
 
 st.header('Data Editor')
 

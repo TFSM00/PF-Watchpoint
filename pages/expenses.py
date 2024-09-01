@@ -1,9 +1,9 @@
 import streamlit as st
 from wp.column_configs import EXPENSES_COLUMN_CONFIG
 from wp.managers.watchpoint_manager import ExpensesManager, WatchPointManager
-from wp.pages import menu
+from wp.startup import startup
 
-menu()
+startup()
 
 expenses = ExpensesManager.loadExpenses()
 st.header('Expenses')

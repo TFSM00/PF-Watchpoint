@@ -15,18 +15,18 @@ class Extractors:
 
 
         # Coerce dates into datetime
-        data["date"] = pd.to_datetime(data['date'], format="%d-%m-%Y")
-        data["value_date"] = pd.to_datetime(data['value_date'], format="%d-%m-%Y")
+        data["date"] = pd.to_datetime(data['date'], dayfirst=True)
+        data["value_date"] = pd.to_datetime(data['value_date'], dayfirst=True)
 
         # Clean amount column and coerce to float
         data['amount'] = data["amount"].apply(lambda x: x.split(' EUR')[0].replace(',', '.'))
-        data['amount'] = pd.to_numeric(data['amount'])
+        data['amount'] = pd.to_numeric(data['amount']).round(2)
 
         # Sort to oldest first
         data.sort_values('date', ascending=True, inplace=True)
 
         # Add balance
-        data['balance'] = data['amount'].cumsum()
+        data['balance'] = data['amount'].cumsum().round(2)
 
         return data
 
@@ -60,9 +60,8 @@ class Extractors:
         data['date'] = pd.to_datetime(data['date'])
         data['value_date'] = pd.to_datetime(data['value_date'])
 
-        data['balance'] = pd.to_numeric(data['balance'])
-
-        print(data)
+        data['balance'] = pd.to_numeric(data['balance']).round(2)
+        data['amount'] = pd.to_numeric(data['amount']).round(2)
         
         return data
     
@@ -91,7 +90,7 @@ class Extractors:
 
         # Data Type Coercions
         data['date'] = pd.to_datetime(data['date'])
-        data['amount'] = pd.to_numeric(data['amount'])
+        data['amount'] = pd.to_numeric(data['amount']).round(2)
 
         # Add the balance to the data
         balance = data.loc[len(data) - 1]['amount']
@@ -107,6 +106,7 @@ class Extractors:
                 data.loc[i, 'description'] = data.loc[i, 'description'] + " - " + data.loc[i, 'symbol']
 
         del data['symbol']
+        data['balance'] = pd.to_numeric(data['balance']).round(2)
 
         return data
     

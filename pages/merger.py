@@ -1,41 +1,44 @@
 import streamlit as st
-from wp.pages import menu
 from wp.managers.expense_manager import ExpensesManager
 from wp.utils import Utils
 from wp.column_configs import EXPENSES_COLUMN_CONFIG
 import pandas as pd
 
-menu()
+from wp.startup import startup
+
+startup()
 
 st.header('Data Editor')
 
 file_upload_data = st.session_state.get('file_upload_data', None)
-
-new_transactions = Utils.merge_data(file_upload_data)
-
+new_transactions = Utils.merge_data(file_upload_data).round(2)
 
 saved_df = ExpensesManager.loadExpenses()
-newest_saved = saved_df['date'].max()
-newest_input = new_transactions['date'].max()
 
-new_changes = new_transactions[new_transactions['date'] >= newest_saved]
+if saved_df.empty:
+    saved_df = ExpensesManager.loadExpenses().round(2)
 
+merger = pd.concat([saved_df, new_transactions], ignore_index=True)
+
+## Logic for loading duplicates
+# We want the new transactions df to be the ones in the new transactions loaded that are not duplicates in
+# the saved df following a group of subset columns.
+# The following code checks if, comparing the selected columns, the row is already there.
+# Duplicates function doesn't work because it would grab rows that are already saved but were not loaded.
+# This would show the incorrect result
+subset_columns = ['date', 'value_date', 'amount', 'account_balance', 'account']
+new_changes = new_transactions[~new_transactions[subset_columns].apply(tuple, 1).isin(new_transactions[subset_columns].apply(tuple, 1))]
 st.subheader('New Rows')
-data = st.data_editor(new_changes,
+
+if not new_changes.empty:
+    data = st.data_editor(new_changes,
                       hide_index=True,
                       column_config=EXPENSES_COLUMN_CONFIG,
                       use_container_width=True)
+else:
+    st.write('No new data loaded.')
 
-
-final_df = pd.concat([saved_df, data], ignore_index=True)
-# TODO: Older transactions uploaded after newer ones will not be added. CHANGE THIS. create old_changes, concat in this line
-final_df.drop_duplicates(
-    subset=['date', 'value_date', 'amount', 'account', 'account_balance'],
-    keep='first', 
-    # Keep first because changed row is last and 
-    # we want whatever is already there because it's probably already changed
-    inplace=True 
-)
+final_df = pd.concat([saved_df, new_changes], ignore_index=True)
 
 st.subheader('Import Result Preview')
 st.dataframe(final_df,
@@ -43,8 +46,8 @@ st.dataframe(final_df,
              column_config=EXPENSES_COLUMN_CONFIG,
              use_container_width=True)
 
-
 if st.button('Save'):
     ExpensesManager.saveExpenses(final_df)
     Utils.update_db('expenses', final_df)
+    Utils.clear_loader_files()
 

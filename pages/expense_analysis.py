@@ -2,9 +2,9 @@ import streamlit as st
 from wp.managers.watchpoint_manager import ExpensesManager as em, WatchPointManager as wm
 import plotly.express as px
 import datetime as dt
-from wp.pages import menu
+from wp.startup import startup
 
-menu()
+startup()
 
 expense_df = em.loadExpenses()
 today = dt.datetime.now()

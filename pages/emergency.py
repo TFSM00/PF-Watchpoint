@@ -2,12 +2,13 @@ import streamlit as st
 from wp.managers.watchpoint_manager import ExpensesManager, WatchPointManager, DateManager, AssetManager
 import datetime as dt
 from dateutil.relativedelta import relativedelta
-from wp.pages import menu
 import calendar
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-menu()
+from wp.startup import startup
+
+startup()
 
 expenses = ExpensesManager.loadExpenses()
 accounts = AssetManager.getSheet('Deposits')

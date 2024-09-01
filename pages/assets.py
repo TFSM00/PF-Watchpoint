@@ -1,9 +1,9 @@
 import streamlit as st
 from wp.managers.watchpoint_manager import ExpensesManager, AssetManager
 from wp.column_configs import DEPOSITS_COLUMN_CONFIG, CRYPTO_COLUMN_CONFIG
-from wp.pages import menu
+from wp.startup import startup
 
-menu()
+startup()
 
 expenses = ExpensesManager.loadExpenses()
 

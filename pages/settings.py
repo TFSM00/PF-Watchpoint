@@ -1,8 +1,8 @@
 import streamlit as st
 from wp.managers.settings_manager import SettingsManager
-from wp.pages import menu
+from wp.startup import startup
 
-menu()
+startup()
 
 st.header('Settings')
 

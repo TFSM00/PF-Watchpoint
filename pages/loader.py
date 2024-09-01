@@ -5,9 +5,9 @@ from wp.extractors import Extractors
 import pandas as pd
 
 df = ExpensesManager.loadExpenses()
-from wp.pages import menu
+from wp.startup import startup
 
-menu()
+startup()
 
 
 def file_upload_status_setting(account, parser, file=None):
@@ -74,10 +74,18 @@ for account, extractor_data in Extractors.accounts.items():
 
 
 if st.button('Merge'):
-    st.session_state['file_upload_data'] = {
-        account: st.session_state[f'path_{account}']
-        for account in Extractors.accounts
-    }  
+    data_loaded = False
+    for account in Extractors.accounts:
+        if f'path_{account}' in st.session_state and st.session_state[f'path_{account}'] != None:
+            data_loaded = True
+            
+    if not data_loaded:
+        st.toast('No data loaded! Cannot merge.')
+    else:
+        st.session_state['file_upload_data'] = {
+            account: st.session_state[f'path_{account}']
+            for account in Extractors.accounts
+        }  
 
-    st.switch_page('pages/merger.py')
+        st.switch_page('pages/merger.py')
 

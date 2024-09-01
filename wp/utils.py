@@ -56,15 +56,13 @@ class Utils:
                 df['account'] = account
                 df['account_balance'] = df['account_balance'].astype(float)
 
+                if 'value_date' not in df.columns:
+                    df['value_date'] = df['date']
+
                 dataframes.append(df)
 
         main = pd.concat(dataframes)
         main.reset_index(drop=True, inplace=True)
-
-        # Handle empty value date
-        for index, row in main.iterrows():
-            if pd.isna(row.value_date):
-                main.at[index, 'value_date'] = main.loc[index].date
 
         main['date'] = pd.to_datetime(main['date'])
         main['value_date'] = pd.to_datetime(main['value_date'])
@@ -75,5 +73,24 @@ class Utils:
         main = main.round({'amount': 2, 'account_balance': 2})
 
         return main
+    
+    @staticmethod
+    def clear_loader_files():
+        for account in Extractors.accounts:
+            if f'path_{account}' in st.session_state and f'file_upload_{account}_status' in st.session_state:
+                st.session_state[f'path_{account}'] = None
+                st.session_state[f'file_upload_{account}_status'] = ['warning', 'No data loaded']
+
+    @staticmethod
+    def ensure_dataypes(df):
+        for col in df.columns:
+            if col in ['account', 'description']:
+                df[col] = df[col].astype(str)
+            elif col in ['date', 'value_date']:
+                df[col] = pd.to_datetime(df[col])
+            elif col in ['amount', 'account_balance']:
+                df[col] = df[col].astype(float).round(2)
+
+        return df
 
 
