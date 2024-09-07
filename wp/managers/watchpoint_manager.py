@@ -6,6 +6,20 @@ from wp.managers.expense_manager import ExpensesManager
 from wp.managers.asset_manager import AssetManager
 
 class WatchPointManager:
+    months = {
+        1: 'January',
+        2: 'February',
+        3: 'March',
+        4: 'April',
+        5: 'May',
+        6: 'June',
+        7: 'July',
+        8: 'August',
+        9: 'September',
+        10: 'October',
+        11: 'November',
+        12: 'December'
+    }
     @staticmethod
     def getEditedDF(base_df, ss_editor_key):
         edited_rows = ss_editor_key['edited_rows']
@@ -31,13 +45,13 @@ class WatchPointManager:
     @staticmethod
     def getMonthName(month: int) -> str | None:
         if month > 0 and month <= 12:
-            return str.capitalize(calendar.Month(month).name)
+            return WatchPointManager.months[month]
         else:
             return None
         
     @staticmethod
     def getMonthNumber(month: str) -> int:
-        return getattr(calendar, month.upper())
+        return list(WatchPointManager.months.keys())[list(WatchPointManager.months.values()).index(month.capitalize())]
     
     @staticmethod
     def getNetWorth():
@@ -75,6 +89,20 @@ class WatchPointManager:
         }
         return data
     
+    @staticmethod
+    def getAccountBalances():
+        df = ExpensesManager.loadExpenses()
+        account_balances_df = df.loc[df.groupby('account')['value_date'].idxmax()]
+
+        account_balances = {
+            account: nominal 
+            for account, nominal in zip(
+                account_balances_df['account'].tolist(),
+                account_balances_df['account_balance'].tolist()
+            ) 
+        }
+        return account_balances
+
 
     @staticmethod
     def getBalanceData():
@@ -86,6 +114,8 @@ class WatchPointManager:
         if len(month_expenses) == 0:
             month_expenses = df.sort_values('date')
 
+       
+
         data = {
             "balance": df['balance'].iloc[0],
             "initial_balance": month_expenses.iloc[0].balance,
@@ -93,6 +123,9 @@ class WatchPointManager:
             "last_updated": month_expenses.iloc[0].date
         }
         return data
+    
+if __name__ == '__main__':
+    print(WatchPointManager.getAccountBalances())
     
 
 

@@ -1,16 +1,18 @@
 import streamlit as st
-from wp.managers.watchpoint_manager import ExpensesManager as em, WatchPointManager as wm
+from wp.managers.expense_manager import ExpensesManager
+from wp.managers.watchpoint_manager import WatchPointManager
 import plotly.express as px
 import datetime as dt
 from wp.startup import startup
 
+
 startup()
 
-expense_df = em.loadExpenses()
+expense_df = ExpensesManager.loadExpenses()
 today = dt.datetime.now()
 data = {
-    'Income': expense_df.loc[expense_df['nominal'] > 0],
-    'Expenses': expense_df.loc[expense_df['nominal'] < 0]
+    'Income': expense_df.loc[(expense_df['amount'] > 0) & (~expense_df['category'].str.contains('Deposit', case=False))],
+    'Expenses': expense_df.loc[(expense_df['amount'] < 0) & (~expense_df['category'].str.contains('Deposit', case=False))]
 }
 
 st.header('Expense Analysis')
@@ -39,26 +41,26 @@ match analysis_type:
         
 
         graph_month = graph_month_col.selectbox('Select month:', 
-                                options=list(map(wm.getMonthName, data[cash_flow_type]['value_date'].dt.month.unique()))[::-1],
+                                options=list(map(WatchPointManager.getMonthName, data[cash_flow_type]['value_date'].dt.month.unique()))[::-1],
                                 )
 
         pie_dataset = data[cash_flow_type].loc[(data[cash_flow_type]['value_date'].dt.year == graph_year) &\
-                                (data[cash_flow_type]['value_date'].dt.month == wm.getMonthNumber(graph_month))]
+                                (data[cash_flow_type]['value_date'].dt.month == WatchPointManager.getMonthNumber(graph_month))]
         
         bar_dataset = expense_df.loc[(expense_df['value_date'].dt.year == graph_year) &\
-                                     (expense_df['value_date'].dt.month == wm.getMonthNumber(graph_month))]
+                                     (expense_df['value_date'].dt.month == WatchPointManager.getMonthNumber(graph_month))]
 
 #st.dataframe(pie_dataset)
-pie_chart = px.pie(names=pie_dataset['category'], values=pie_dataset['nominal'].abs(),
+pie_chart = px.pie(names=pie_dataset['category'], values=pie_dataset['amount'].abs(),
                    title="Cash Flow as Percentage of Date Total")
 pie_chart.update_traces(textfont_size=14)
 
 st.plotly_chart(pie_chart, use_container_width=True)
 
-bar_chart = px.bar(bar_dataset, x='value_date', y='nominal', color='category',
+bar_chart = px.bar(bar_dataset, x='value_date', y='amount', color='category',
                    labels = {
                        "value_date": "Date",
-                       "nominal": "Nominal",
+                       "amount": "Nominal",
                        "category": "Category"
                    },
                    title="Cash Flow by Date and Category")
@@ -68,9 +70,9 @@ st.plotly_chart(bar_chart, use_container_width=True)
 
 
 resample_mode = 'D' if analysis_type != 'All-Time' else 'ME'
-net_cf_dataset = bar_dataset.resample(resample_mode, on='value_date')['nominal'].sum()
+net_cf_dataset = bar_dataset.resample(resample_mode, on='value_date')['amount'].sum()
 #colors = ['red' if val < 0 else 'green' for val in net_cf_dataset.values]
-net_cf = px.line(net_cf_dataset, line_shape='spline',
+net_cf = px.line(net_cf_dataset,
                  labels={
                      "value_date": 'Date',
                      'value': 'Nominal',
