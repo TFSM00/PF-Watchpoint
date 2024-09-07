@@ -92,5 +92,32 @@ class Utils:
                 df[col] = df[col].astype(float).round(2)
 
         return df
+    
+    def hide_anchor_link():
+        st.markdown(
+            body="""
+            <style>
+                h1 > * {
+                    display: none !important;
+                }
+                h2 > * {
+                    display: none !important;
+                }
+                h3 > * {
+                    display: none !important;
+                }
+                h4 > * {
+                    display: none !important;
+                }
+                h5 > * {
+                    display: none !important;
+                }
+                h6 > * {
+                    display: none !important;
+                }
+            </style>
+            """,
+            unsafe_allow_html=True,
+        )
 
 
