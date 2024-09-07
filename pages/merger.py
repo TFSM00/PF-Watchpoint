@@ -20,6 +20,7 @@ if saved_df.empty:
 
 merger = pd.concat([saved_df, new_transactions], ignore_index=True)
 
+
 ## Logic for loading duplicates
 # We want the new transactions df to be the ones in the new transactions loaded that are not duplicates in
 # the saved df following a group of subset columns.
@@ -27,8 +28,9 @@ merger = pd.concat([saved_df, new_transactions], ignore_index=True)
 # Duplicates function doesn't work because it would grab rows that are already saved but were not loaded.
 # This would show the incorrect result
 subset_columns = ['date', 'value_date', 'amount', 'account_balance', 'account']
-new_changes = new_transactions[~new_transactions[subset_columns].apply(tuple, 1).isin(new_transactions[subset_columns].apply(tuple, 1))]
-st.subheader('New Rows')
+new_changes = merger[~merger[subset_columns].apply(tuple, 1).isin(saved_df[subset_columns].apply(tuple, 1))]
+st.subheader('New Rows - Possible Duplicates')
+
 
 if not new_changes.empty:
     data = st.data_editor(new_changes,
@@ -39,6 +41,7 @@ else:
     st.write('No new data loaded.')
 
 final_df = pd.concat([saved_df, new_changes], ignore_index=True)
+final_df.sort_values('date', ascending=False, inplace=True)
 
 st.subheader('Import Result Preview')
 st.dataframe(final_df,

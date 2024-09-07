@@ -118,7 +118,7 @@ class Extractors:
             },
         "Novo Banco":
             {'loader': novo_banco,
-             'info': ''
+             'info': 'Data needs to be converted to xlsx'
             },
         "XTB":
             {'loader': xtb,
